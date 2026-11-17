@@ -8,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { chromium } from 'playwright-core';
-import type { Locator } from 'playwright-core';
+import type { Locator, Route } from 'playwright-core';
 import { snapshotSchema } from '../shared/workspace.ts';
 import type { Snapshot } from '../shared/workspace.ts';
 import { homeWidgetCatalog } from '../shared/homeWidgets.ts';
@@ -1030,7 +1030,7 @@ try {
   const zjxcHome = 'https://zjnews.zjol.com.cn/zjxc/';
   const zjxcArticle = 'https://zjnews.zjol.com.cn/zjxc/202611/t20261116_1234567.shtml';
   let zjxcTitle = '浙江宣传测试文章';
-  await page.route(origin + '/api/home-pages/public-source', async (route) => {
+  const servePublisher = async (route: Route) => {
     const { url } = route.request().postDataJSON();
     const pages = new Map([
       [qiushiCatalog, '<a href="' + qiushiIssue + '"><span>《求是》2026年第22期</span></a>'],
@@ -1040,7 +1040,24 @@ try {
     ]);
     assert.ok(pages.has(url), 'unexpected publisher address: ' + url);
     await route.fulfill({ json: { text: pages.get(url), status: 200 } });
-  });
+  };
+  let publishersAvailable = false;
+  const homePages = await browser.newPage();
+  await homePages.route(origin + '/api/home-pages/public-source', (route) => publishersAvailable
+    ? servePublisher(route)
+    : route.fulfill({ status: 502, json: { code: 'source_unavailable', message: '资讯来源暂时无法访问。' } }));
+  await homePages.goto(origin + '/home-pages.html');
+  const mainMedia = homePages.locator('.hp-card').filter({ has: homePages.getByText('主流媒体', { exact: true }) });
+  await mainMedia.locator('.hp-card-subtitle').getByText('暂无文章', { exact: true }).waitFor();
+  assert.equal(await mainMedia.locator('.hp-media-skeleton').count(), 0);
+  publishersAvailable = true;
+  await mainMedia.getByRole('button', { name: '立即刷新', exact: true }).click();
+  await mainMedia.getByText('求是测试文章', { exact: true }).waitFor();
+  await mainMedia.getByText('浙江宣传丨' + zjxcTitle, { exact: true }).waitFor();
+  await homePages.close();
+  console.log('Edge E2E · Home Pages 媒体来源失败后结束占位，刷新可恢复两个频道。');
+
+  await page.route(origin + '/api/home-pages/public-source', servePublisher);
   await homeLink().click();
   await button('编辑首页').click();
   await button('添加组件').click();

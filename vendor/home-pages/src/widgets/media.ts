@@ -1314,6 +1314,7 @@ export const mediaWidget: WidgetDefinition<MediaConfig> = {
     const startSync = (forceRefresh = false): void => {
       if (isSyncing) return;
       isSyncing = true;
+      if (currentItems.length === 0) ctx.setSubtitle("正在获取最新文章…");
       refreshBtnEl?.addClass("is-spinning");
       progressTrack.removeClass("is-done");
       progressFill.setCssProps({ "--hp-media-progress": "4%" });
@@ -1358,13 +1359,18 @@ export const mediaWidget: WidgetDefinition<MediaConfig> = {
               }
             }, 400);
 
+            isInitialLoad = false;
             currentItems = latestItems;
             const updatedQiushi = qiushiIssueStore.get(`internal:qiushi:${config.qiushiUrl.trim()}`);
             if (updatedQiushi) currentIssue = updatedQiushi;
             renderToolbarOptions();
             renderListItems();
-            updateSubtitle(Date.now(), currentIssue);
-            scheduleSaveDiskCache(app);
+            if (currentItems.length > 0) {
+              updateSubtitle(Date.now(), currentIssue);
+              scheduleSaveDiskCache(app);
+            } else {
+              ctx.setSubtitle("暂无文章");
+            }
           }
         }
       });

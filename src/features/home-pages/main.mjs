@@ -4,7 +4,9 @@ import '../../dialog-glass.css';
 import { HomeView } from '../../../vendor/home-pages/src/view.ts';
 import { HomePagesSettingTab, sanitizeSettings } from '../../../vendor/home-pages/src/settings.ts';
 import { AddWidgetModal } from '../../../vendor/home-pages/src/ui/modals.ts';
+import { renderEmpty } from '../../../vendor/home-pages/src/ui/dom.ts';
 import { createWidgetInstance } from '../../../vendor/home-pages/src/widgets/registry.ts';
+import { mediaWidget } from '../../../vendor/home-pages/src/widgets/media.ts';
 import { createApi } from '../../../vendor/home-pages/src/api.ts';
 import { resumePomodoroTimers } from '../../../vendor/home-pages/src/widgets/pomodoro.ts';
 import { Component, Modal, Notice } from './obsidian.mjs';
@@ -13,12 +15,26 @@ import { api, isPagesDemo, loadWorkspace, message } from '../../services/api.ts'
 import { pdfResourceUrl } from '../../services/fileApi.ts';
 import { appearanceVariables } from '../settings/appearanceStyle.ts';
 import { appearanceSchema } from '../../../shared/appearance.ts';
+import { mediaSources } from '../home/publicMedia.ts';
 
 const demoKeySuffix = isPagesDemo ? ':' + new URL('./', document.baseURI).pathname : '';
 const layoutKey = 'mlw-home-pages-v0.3.1' + demoKeySuffix;
 const rootKey = 'mlw-home-pages-root' + demoKeySuffix;
 const status = document.getElementById('web-status');
 const select = document.getElementById('web-root');
+
+if (isPagesDemo) {
+  mediaWidget.render = (body, ctx) => {
+    ctx.setSubtitle('官网入口');
+    const empty = renderEmpty(body, {
+      icon: 'newspaper',
+      text: '在线体验版提供官网入口。文章列表可在本机完整版刷新。',
+    });
+    for (const { title, url } of Object.values(mediaSources)) {
+      empty.createEl('a', { cls: 'hp-pill', text: title, attr: { href: url, target: '_blank', rel: 'noopener noreferrer' } });
+    }
+  };
+}
 
 class BrowserHomeView extends HomeView {
   promptAddWidget() {
