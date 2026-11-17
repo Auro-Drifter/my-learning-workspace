@@ -2,8 +2,10 @@ node_modules/
 dist/
 dist-pages/
 data/
+note-backups/
 workspace.json
 roots.json
+learning-workspace.json
 *.bak
 *.backup
 .env
