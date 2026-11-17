@@ -2,4 +2,12 @@ node_modules/
 dist/
 dist-pages/
 data/
+workspace.json
+roots.json
+*.bak
+*.backup
+.env
+.env.*
+/PROJECT_STATE.md
+/Learning_Workspace_PRD_Codex.md
 *.log

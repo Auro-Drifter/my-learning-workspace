@@ -50,7 +50,9 @@ npm.cmd start
 
 在线版从示例课程开始。课程、任务、首页布局和外观的更改只保存在当前浏览器，可以在设置里下载备份。示例笔记和 PDF 可查看。访问电脑上的资料、自定义插件和实时文章抓取请使用本机完整版。
 
-运行 `npm.cmd run build:pages` 生成独立的 `dist-pages` 目录。GitHub Pages 从 `gh-pages` 分支根目录发布该目录的内容。更新体验版时，将新生成的站点文件提交到 `gh-pages`，源码提交到 `main`。
+推送代码到 GitHub 的 `main` 分支后，GitHub Actions 会运行测试、构建体验版，并更新[在线工作台](https://auro-drifter.github.io/my-learning-workspace/)。构建和部署状态可以在 [Actions 页面](https://github.com/Auro-Drifter/my-learning-workspace/actions/workflows/pages.yml)查看。在本机可运行 `npm.cmd run build:pages` 生成独立的 `dist-pages` 目录。
+
+自动部署只上传构建出的体验版。把电脑上的资料和导出的备份放在仓库外，工作台默认的 `data/` 目录由 Git 忽略。GitHub 仓库是公开的，提交代码前可用 `git diff --cached --name-only` 核对暂存文件。
 
 ## 验证
 
