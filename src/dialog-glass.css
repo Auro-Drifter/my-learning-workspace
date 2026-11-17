@@ -1,0 +1,54 @@
+/* Native dialogs in the workbench and the Home Pages host. */
+dialog.glass-dialog {
+  --glass-fill: var(--glass-base, var(--surface, var(--background-primary, Canvas)));
+  --text: var(--glass-text, CanvasText);
+  --muted: var(--glass-muted, CanvasText);
+  --accent: var(--glass-accent, LinkText);
+  --danger: var(--glass-danger, CanvasText);
+  /* Home Pages uses Obsidian's names for the same foreground colors. */
+  --text-normal: var(--text);
+  --text-muted: var(--muted);
+  --text-error: var(--danger);
+  --interactive-accent: var(--accent);
+  color: var(--text);
+  background-color: var(--glass-fill);
+  border-color: color-mix(in srgb, var(--glass-fill) 42%, rgb(255 255 255 / .64));
+  box-shadow: 0 28px 72px -16px rgb(6 10 8 / .36),
+    0 9px 24px -9px rgb(6 10 8 / .25),
+    inset 0 1px 0 rgb(255 255 255 / .44),
+    inset 1px 0 0 rgb(255 255 255 / .22),
+    inset 0 -1px 0 rgb(255 255 255 / .12);
+}
+
+dialog.glass-dialog::backdrop {
+  background-color: var(--glass-scrim, rgb(20 26 20 / .36));
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  dialog.glass-dialog {
+    background-color: color-mix(in srgb, var(--glass-fill) var(--glass-effective-opacity, var(--glass-opacity, 76%)), transparent);
+    background-image: radial-gradient(ellipse 115% 80% at 3% -17%, rgb(255 255 255 / .07), transparent 72%);
+    backdrop-filter: var(--glass-effective-filter, var(--glass-filter, blur(18px) saturate(138%)));
+  }
+
+  dialog.glass-dialog::backdrop { backdrop-filter: blur(2px); }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  dialog.glass-dialog {
+    --glass-effective-opacity: var(--glass-opacity-reduced, 100%);
+    --glass-effective-filter: var(--glass-filter-reduced, none);
+  }
+  dialog.glass-dialog::backdrop { backdrop-filter: none; }
+}
+
+@media (forced-colors: active) {
+  dialog.glass-dialog {
+    color: CanvasText;
+    background: Canvas;
+    border-color: CanvasText;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+  dialog.glass-dialog::backdrop { backdrop-filter: none; }
+}
